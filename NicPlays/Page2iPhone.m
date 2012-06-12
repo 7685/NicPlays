@@ -10,6 +10,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "WebCall.h"
 #import "SettingViewController.h"
+#import "SHKActivityIndicator.h"
 
 @interface Page2iPhone ()
 
@@ -29,40 +30,60 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(appDidBecomeActive:) name: @"kStartTCPConnection" object: nil];
     NSArray *url = [[[NSUserDefaults standardUserDefaults] valueForKey:@"url2"] componentsSeparatedByString:@":"];
     m_NcdComponent = [[NCDComponent alloc] initWithDevice:self];
     m_NcdComponent.IPAddress = [url objectAtIndex:0]; //@"207.119.127.170";//@"192.168.1.77";
     m_NcdComponent.Port      = [[url objectAtIndex:1] intValue]; //8088;//2101;
+    [[SHKActivityIndicator currentIndicator] displayActivity:@"Re-connecting...."];
     [m_NcdComponent OpenPort];
     NSDateFormatter *f = [[NSDateFormatter alloc] init];
     f.dateFormat = @"MM/dd/yyyy hh:mm:ss a";
     [btnClock setTitle:[f stringFromDate:[NSDate date]] forState:UIControlStateNormal];
     // Do any additional setup after loading the view from its nib.
 }
+
+
 -(void)viewWillAppear:(BOOL)animated{
-    if (m_NcdComponent) {
+    if (m_NcdComponent && !m_NcdComponent.IsOpen) {
+        [[SHKActivityIndicator currentIndicator] displayActivity:@"Re-connecting...."];
         [m_NcdComponent OpenPort];
     }
     timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(setDateTime) userInfo:nil repeats:YES];
 }
 -(void)setDateTime{
-    if ( m_NcdComponent == nil || !m_NcdComponent.IsOpen ) {
+    if ( m_NcdComponent && !m_NcdComponent.IsOpen ) {
         [m_NcdComponent OpenPort];
     }
     NSDateFormatter *f = [[NSDateFormatter alloc] init];
     f.dateFormat = @"MM/dd/yyyy hh:mm:ss a";
     [btnClock setTitle:[f stringFromDate:[NSDate date]] forState:UIControlStateNormal];
 }
+
 -(void) viewDidDisappear:(BOOL)animated{
+    [m_NcdComponent.PROXR.RelayBanks TurnOffAllRelaysInBank:0];
+    [NSThread sleepForTimeInterval:0.3];
     [m_NcdComponent ClosePort];
     [timer invalidate];
     timer = nil;
 }
+
+- (void)appDidBecomeActive:(NSNotification *)notify {
+    [self dismissModalViewControllerAnimated:NO];
+}
+
 - (void)viewDidUnload
 {
     [super viewDidUnload];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [m_NcdComponent ClosePort];
+    [m_NcdComponent release], m_NcdComponent = nil;
+    [super dealloc];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -100,6 +121,7 @@
     
     if ( m_NcdComponent == nil || !m_NcdComponent.IsOpen ) {
         [m_NcdComponent OpenPort];
+        [[SHKActivityIndicator currentIndicator] displayActivity:@"Re-connecting...."];
         return ;
     }
     
@@ -163,9 +185,8 @@
     //timer = nil;*/
     
     if ( m_NcdComponent == nil || !m_NcdComponent.IsOpen ) {
+        [[SHKActivityIndicator currentIndicator] displayActivity:@"Re-connecting...."];
         [m_NcdComponent OpenPort];
-        UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Alert" message:@"Re-connecting" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] autorelease];
-        [alert show];
         return ;
     }
     
@@ -240,6 +261,7 @@
 -(void)onConnectStatusChangeEvent:(NSString*)connectionInfo {
 	
 	NSLog(@"connectStatusChange:%@", connectionInfo);
+    [[SHKActivityIndicator currentIndicator] hide];
     //	if ( !m_NcdComponent.IsOpen ) self.switchCtrl.on = FALSE ;
 }
 @end

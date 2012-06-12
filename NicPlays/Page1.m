@@ -10,6 +10,7 @@
 #import "WebCall.h"
 #import <QuartzCore/QuartzCore.h>
 #import "SettingViewController.h"
+#import "SHKActivityIndicator.h"
 
 @interface Page1 ()
 
@@ -29,31 +30,51 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(appDidBecomeActive:) name: @"kStartTCPConnection" object: nil];
+
     NSArray *url = [[[NSUserDefaults standardUserDefaults] valueForKey:@"url1"] componentsSeparatedByString:@":"];
     m_NcdComponent = [[NCDComponent alloc] initWithDevice:self];
     m_NcdComponent.IPAddress = [url objectAtIndex:0]; //@"207.119.127.170";//@"192.168.1.77";
     m_NcdComponent.Port      = [[url objectAtIndex:1] intValue]; //8088;//2101;
+    [[SHKActivityIndicator currentIndicator] displayActivity:@"Re-connecting...."];
     [m_NcdComponent OpenPort];
     NSDateFormatter *f = [[NSDateFormatter alloc] init];
     f.dateFormat = @"MM/dd/yyyy hh:mm:ss a";
     [btnClock setTitle:[f stringFromDate:[NSDate date]] forState:UIControlStateNormal];
     // Do any additional setup after loading the view from its nib.
 }
--(void)viewWillAppear:(BOOL)animated{
-    if (m_NcdComponent) {
+
+- (void)appDidBecomeActive:(NSNotification *)notify {
+    [self dismissModalViewControllerAnimated:NO];
+/*    if (m_NcdComponent && !m_NcdComponent.IsOpen) {
+        [[SHKActivityIndicator currentIndicator] displayActivity:@"Re-connecting...."];
         [m_NcdComponent OpenPort];
+        NSLog(@"ViewDiDAppear : notification");
+    }*/
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    if (m_NcdComponent && !m_NcdComponent.IsOpen) {
+        [[SHKActivityIndicator currentIndicator] displayActivity:@"Re-connecting...."];
+        [m_NcdComponent OpenPort];
+        NSLog(@"ViewDiDAppear");
     }
     timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(setDateTime) userInfo:nil repeats:YES];
 }
+
 -(void)setDateTime{
-    if ( m_NcdComponent == nil || !m_NcdComponent.IsOpen ) {
+    if ( m_NcdComponent && !m_NcdComponent.IsOpen ) {
+        [[SHKActivityIndicator currentIndicator] displayActivity:@"Re-connecting...."];
         [m_NcdComponent OpenPort];
     }
     NSDateFormatter *f = [[NSDateFormatter alloc] init];
     f.dateFormat = @"MM/dd/yyyy hh:mm:ss a";
     [btnClock setTitle:[f stringFromDate:[NSDate date]] forState:UIControlStateNormal];
 }
+
 -(void) viewDidDisappear:(BOOL)animated{
+    [m_NcdComponent.PROXR.RelayBanks TurnOffAllRelaysInBank:0];
+    [NSThread sleepForTimeInterval:0.3];
     [m_NcdComponent ClosePort];
     [timer invalidate];
     timer = nil;
@@ -71,6 +92,7 @@
 }
 
 - (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [m_NcdComponent ClosePort];
     [m_NcdComponent release], m_NcdComponent = nil;
     [super dealloc];
@@ -102,11 +124,12 @@
     if (secs > 0) {
         autoTimer = [NSTimer scheduledTimerWithTimeInterval:secs target:self selector:@selector(autoReleaseAction:) userInfo:sender repeats:NO];
     }*/
+    
     if ( m_NcdComponent == nil || !m_NcdComponent.IsOpen ) {
+        [[SHKActivityIndicator currentIndicator] displayActivity:@"Re-connecting...."];
         [m_NcdComponent OpenPort];
-        UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Alert" message:@"Re-connecting" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] autorelease];
-        [alert show];
-        return ;
+        [NSThread sleepForTimeInterval:0.3];
+        //return ;
     }
     [sender setBackgroundColor:[UIColor grayColor]];
     sender.layer.opacity = 0.5;
@@ -173,7 +196,8 @@
     
     if ( m_NcdComponent == nil || !m_NcdComponent.IsOpen ) {
         [m_NcdComponent OpenPort];
-        return ;
+        [NSThread sleepForTimeInterval:0.3];
+//        return ;
     }
     if (autoTimer[sender.tag]) {
         NSLog(@"%d tag timer release", sender.tag);
@@ -227,7 +251,7 @@
 }
 
 -(void)onConnectStatusChangeEvent:(NSString*)connectionInfo {
-	
+    [[SHKActivityIndicator currentIndicator] hide];	
 	NSLog(@"connectStatusChange:%@", connectionInfo);
     if ( !m_NcdComponent.IsOpen ) {
         NSLog(@"connection closed");

@@ -35,6 +35,7 @@
 		789896171555846A008AB023 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 789896121555846A008AB023 /* icon.png */; };
 		789896181555846A008AB023 /* icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 789896131555846A008AB023 /* icon@2x.png */; };
 		789896191555846A008AB023 /* icon512.png in Resources */ = {isa = PBXBuildFile; fileRef = 789896141555846A008AB023 /* icon512.png */; };
+		BB339563157FA67500BEA5C5 /* SHKActivityIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = BB339562157FA67500BEA5C5 /* SHKActivityIndicator.m */; };
 		BBAB2DC9157A753400D63C6D /* libNCDComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BBAB2DC8157A753400D63C6D /* libNCDComponent.a */; };
 /* End PBXBuildFile section */
 
@@ -76,6 +77,8 @@
 		789896121555846A008AB023 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		789896131555846A008AB023 /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x.png"; sourceTree = "<group>"; };
 		789896141555846A008AB023 /* icon512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon512.png; sourceTree = "<group>"; };
+		BB339561157FA67500BEA5C5 /* SHKActivityIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHKActivityIndicator.h; sourceTree = "<group>"; };
+		BB339562157FA67500BEA5C5 /* SHKActivityIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SHKActivityIndicator.m; sourceTree = "<group>"; };
 		BBAB2DC8157A753400D63C6D /* libNCDComponent.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libNCDComponent.a; path = ../NCDComponent/bin/libNCDComponent.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -127,6 +130,8 @@
 		72F3D1F4151D91B900B7B922 /* NicPlays */ = {
 			isa = PBXGroup;
 			children = (
+				BB339561157FA67500BEA5C5 /* SHKActivityIndicator.h */,
+				BB339562157FA67500BEA5C5 /* SHKActivityIndicator.m */,
 				72F3D1FD151D91B900B7B922 /* AppDelegate.h */,
 				72F3D1FE151D91B900B7B922 /* AppDelegate.m */,
 				72F3D200151D91B900B7B922 /* ViewController.h */,
@@ -255,6 +260,7 @@
 				72F9D7F01521969C004BE33F /* Page2iPhone.m in Sources */,
 				787E8FB9153712560016D4B4 /* WebCall.m in Sources */,
 				72FD0AED15397CE7007C52D4 /* SettingViewController.m in Sources */,
+				BB339563157FA67500BEA5C5 /* SHKActivityIndicator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
