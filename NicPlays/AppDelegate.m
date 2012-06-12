@@ -52,7 +52,7 @@
     self.viewController = [[[ViewController alloc] initWithNibName:@"ViewController" bundle:nil] autorelease];
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
-   // [self initNetworkCommunication:nil];
+    //[self initNetworkCommunication:nil];
     return YES;
 }
 
@@ -76,6 +76,8 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    NSLog(@"applicationDidBecomeActive");
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"kStartTCPConnection" object:self userInfo:nil];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -87,7 +89,7 @@
 	CFReadStreamRef readStream;
 	CFWriteStreamRef writeStream;
     //    CFStreamCreatePairWithSocketToHost(NULL, (CFStringRef)@"68.233.230.216", 51001, &readStream, &writeStream);
-	CFStreamCreatePairWithSocketToHost(NULL, (CFStringRef)@"www.signalswitch.com", 8088, &readStream, &writeStream);
+	CFStreamCreatePairWithSocketToHost(NULL, (CFStringRef)@"www.signalswitch1.com", 8088, &readStream, &writeStream);
 	inputStream = (NSInputStream *)readStream;
 	outputStream = (NSOutputStream *)writeStream;
 	[inputStream setDelegate:self];
